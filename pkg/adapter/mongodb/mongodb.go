@@ -14,11 +14,13 @@ import (
 type MongoDBInterface interface {
 	GetCollection(collectionName string) *mongo.Collection
 	GetCollectionByName(name string) *mongo.Collection
+	CheckDB() (bool, error)
 }
 
 type mongodb_pool struct {
-	DB     *mongo.Client
-	DBName string
+	DB                  *mongo.Client
+	DBName              string
+	DBDefaultCollection string
 }
 
 var mdbpool = &mongodb_pool{}
@@ -44,8 +46,9 @@ func New(conf *config.Config) MongoDBInterface {
 		}
 
 		mdbpool = &mongodb_pool{
-			DB:     client,
-			DBName: conf.MDB_NAME,
+			DB:                  client,
+			DBName:              conf.MDB_NAME,
+			DBDefaultCollection: conf.MDB_DEFAULT_COLLECTION,
 		}
 
 	}
@@ -68,4 +71,15 @@ func ObjectIDFromHex(hex string) (objectID primitive.ObjectID, err error) {
 		return objectID, err
 	}
 	return objectID, nil
+}
+
+func (d *mongodb_pool) CheckDB() (bool, error) {
+	// Tenta realizar um ping no banco de dados para verificar a conexão
+	err := d.DB.Ping(ctx, nil)
+	if err != nil {
+		logger.Error("Erro ao verificar a conexão com o banco de dados: ", err)
+		return false, err
+	}
+	logger.Info("Conexão com o banco de dados está ativa")
+	return true, nil
 }

@@ -27,8 +27,9 @@ type Config struct {
 }
 
 type MongoDBConfig struct {
-	MDB_URI  string `json:"mdb_uri"`
-	MDB_NAME string `json:"mdb_name"`
+	MDB_URI                string `json:"mdb_uri"`
+	MDB_NAME               string `json:"mdb_name"`
+	MDB_DEFAULT_COLLECTION string `json:"mdb_default_collection"`
 }
 
 func NewConfig() *Config {
@@ -52,6 +53,11 @@ func NewConfig() *Config {
 	SRV_MDB_NAME := os.Getenv("SRV_MDB_NAME")
 	if SRV_MDB_NAME != "" {
 		conf.MDB_NAME = SRV_MDB_NAME
+	}
+
+	SRV_MDB_DEFAULT_COLLECTION := os.Getenv("SRV_MDB_DEFAULT_COLLECTION")
+	if SRV_MDB_DEFAULT_COLLECTION != "" {
+		conf.MDB_DEFAULT_COLLECTION = SRV_MDB_DEFAULT_COLLECTION
 	}
 
 	SRV_JWT_SECRET_KEY := os.Getenv("SRV_JWT_SECRET_KEY")
