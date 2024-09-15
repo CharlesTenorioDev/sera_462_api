@@ -82,8 +82,9 @@ func defaultConf() *Config {
 		JWTTokenExp:  300,
 		// 15m
 		MongoDBConfig: MongoDBConfig{
-			MDB_URI:  "mongodb+srv://admsera:LinuxDB%40162@cluster0.3a4es.mongodb.net/",
-			MDB_NAME: "Cluster0",
+			MDB_URI:                "mongodb://mongo:aPWYuWZnQSYtMEwflwVsaktelQaqbnwa@mongodb.railway.internal:27017",
+			MDB_NAME:               "db_sera",
+			MDB_DEFAULT_COLLECTION: "cfSera",
 		},
 	}
 	// Adicione as coleções padrão ao mapa MDB_COLLECTIONS
