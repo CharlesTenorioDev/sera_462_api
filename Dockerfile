@@ -1,4 +1,4 @@
-FROM golang:1.22.3-alpine3.19 AS base_builder
+FROM golang:1.22.5-alpine3.19 AS base_builder
 # LABEL maintainer Charles Tenorio <charles.tenorio.dev@gmail.com>
 
 WORKDIR /myapp/
