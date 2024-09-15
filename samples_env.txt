@@ -1,0 +1,7 @@
+SRV_PORT=8080
+SRV_MODE=developer
+SRV_MDB_URI=mongodb://admin:supersenha@localhost:27017/
+SRV_MDB_NAME=sera_db
+SRV_MDB_DEFAULT_COLLECTION=
+SRV_JWT_SECRET_KEY=RgUkXp2s5v8y/B?E(H+KbPeShVmYq3t6
+SRV_JWT_TOKEN_EXP=300
