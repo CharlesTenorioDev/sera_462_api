@@ -1,3 +1,5 @@
 tmp_data
 WiredTiger.turtle
 .idea/
+.env
+env
