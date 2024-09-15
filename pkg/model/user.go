@@ -50,10 +50,11 @@ func (u *Usuario) CheckPassword(senha string) bool {
 
 func (u *Usuario) ValidarRoler(role string) bool {
 	roleMap := map[string]string{
-		"professor": "professor",
-		"aluno":     "aluno",
-		"parceiro":  "parceiro",
-		"admin":     "admin",
+		"professor":   "professor",
+		"aluno":       "aluno",
+		"parceiro":    "parceiro",
+		"admin":       "admin",
+		"instituicao": "instituicao",
 	}
 	_, existe := roleMap[role]
 	return existe

@@ -82,8 +82,8 @@ func defaultConf() *Config {
 		JWTTokenExp:  300,
 		// 15m
 		MongoDBConfig: MongoDBConfig{
-			MDB_URI:  "mongodb://admin:supersenha@localhost:27017/",
-			MDB_NAME: "teste_db",
+			MDB_URI:  "mongodb+srv://admsera:LinuxDB%40162@cluster0.3a4es.mongodb.net/",
+			MDB_NAME: "Cluster0",
 		},
 	}
 	// Adicione as coleções padrão ao mapa MDB_COLLECTIONS

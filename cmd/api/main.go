@@ -7,12 +7,14 @@ import (
 	"github.com/sera_backend/internal/config"
 	"github.com/sera_backend/internal/config/logger"
 
+	hand_instituicao "github.com/sera_backend/internal/handler/instituicao"
 	hand_usr "github.com/sera_backend/internal/handler/user"
 
 	"github.com/sera_backend/pkg/adapter/mongodb"
 
 	"github.com/sera_backend/pkg/server"
 
+	service_instituicao "github.com/sera_backend/pkg/service/instituicao"
 	service_usr "github.com/sera_backend/pkg/service/user"
 
 	"github.com/go-chi/chi/v5"
@@ -34,6 +36,8 @@ func main() {
 
 	usr_service := service_usr.NewUsuarioservice(mogDbConn)
 
+	inst_service := service_instituicao.NewInstituicaoervice(mogDbConn)
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
@@ -50,6 +54,7 @@ func main() {
 
 	r.Get("/", healthcheck)
 	hand_usr.RegisterUsuarioAPIHandlers(r, usr_service)
+	hand_instituicao.RegisterInstituicaoHandlers(r, inst_service)
 
 	// Inicie o worker em uma goroutine
 
