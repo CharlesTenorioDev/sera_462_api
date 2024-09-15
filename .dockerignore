@@ -1,1 +1,11 @@
-**/target
+.git/
+.vscode/
+.idea/
+
+tmp_data/
+docs/
+docker-compose.yml
+Dockerfile
+LICENSE
+app.env
+README.md
