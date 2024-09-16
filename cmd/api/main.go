@@ -58,7 +58,7 @@ func main() {
 
 	r.Get("/", healthcheck)
 	hand_usr.RegisterUsuarioAPIHandlers(r, usr_service)
-	hand_instituicao.RegisterInstituicaoHandlers(r, inst_service)
+	hand_instituicao.RegisterInstituicaoHandlers(r, inst_service, usr_service)
 	handHealthcheck.RegisterHealthcheckAPIHandlers(r, handServiceHealthcheck)
 
 	// Inicie o worker em uma goroutine

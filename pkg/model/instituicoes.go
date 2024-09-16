@@ -16,9 +16,7 @@ type Instituicao struct {
 	Nome      string             `bson:"nome" json:"nome"`
 	Telefone  string             `bson:"telefone" json:"telefone"`
 	CNPJ      string             `bson:"cnpj" json:"cnpj"`
-	Raio      string             `bson:"raio" json:"raio"`
-	Excluido  string             `bson:"excluido" json:"excluido"`
-	Endereco  []Endereco         `bson:"endereco" json:"endereco"`
+	Endereco  Endereco           `bson:"endereco" json:"endereco"`
 	Enabled   bool               `bson:"enabled" json:"enabled"`
 	CreatedAt string             `bson:"created_at" json:"created_at,omitempty"`
 	UpdatedAt string             `bson:"updated_at" json:"updated_at,omitempty"`
@@ -49,6 +47,7 @@ func NewIntituicao(instituicao_request Instituicao) *Instituicao {
 		DataType:  "Institucao",
 		IDUsuario: instituicao_request.IDUsuario,
 		Nome:      instituicao_request.Nome,
+		CNPJ:      instituicao_request.CNPJ,
 		Enabled:   true,
 		CreatedAt: time.Now().String(),
 	}

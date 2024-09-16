@@ -5,11 +5,12 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/sera_backend/pkg/service/instituicao"
+	"github.com/sera_backend/pkg/service/user"
 )
 
-func RegisterInstituicaoHandlers(r chi.Router, service instituicao.InstituicaoServiceInterface) {
+func RegisterInstituicaoHandlers(r chi.Router, service instituicao.InstituicaoServiceInterface, userService user.UserServiceInterface) {
 	r.Route("/api/v1/instituicao", func(r chi.Router) {
-		r.Post("/add", createInstituicao(service))
+		r.Post("/add", createInstituicao(service, userService))
 		r.Put("/update/{id}/{nome}", updateInstituicao(service))
 		r.Get("/getbyid/{id}", getByIdInstituicao(service))
 		r.Get("/all", func(w http.ResponseWriter, r *http.Request) {

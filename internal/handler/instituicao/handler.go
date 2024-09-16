@@ -2,6 +2,7 @@ package instituicao
 
 import (
 	"encoding/json"
+
 	"strconv"
 
 	"net/http"
@@ -9,14 +10,16 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/sera_backend/internal/config/logger"
 	"github.com/sera_backend/pkg/service/instituicao"
+
 	"github.com/sera_backend/pkg/service/validation"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/sera_backend/pkg/model"
+	"github.com/sera_backend/pkg/service/user"
 )
 
-func createInstituicao(service instituicao.InstituicaoServiceInterface) http.HandlerFunc {
+func createInstituicao(service instituicao.InstituicaoServiceInterface, userService user.UserServiceInterface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		Instituicao := &model.Instituicao{}
 
@@ -37,6 +40,14 @@ func createInstituicao(service instituicao.InstituicaoServiceInterface) http.Han
 			http.Error(w, "Documento já cadastrado", http.StatusBadRequest)
 			return
 		}
+
+		objectIDStr := Instituicao.IDUsuario.Hex()
+		if !userService.CheckExists(r.Context(), objectIDStr) {
+			http.Error(w, "Usuario não encontrado precisa cadastra um usuario", http.StatusBadRequest)
+			return
+
+		}
+
 		_, err = service.Create(r.Context(), *Instituicao)
 		if err != nil {
 			logger.Error("erro ao acessar a camada de service do mpg", err)

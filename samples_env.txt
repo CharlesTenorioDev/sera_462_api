@@ -5,3 +5,11 @@ SRV_MDB_NAME=sera_db
 SRV_MDB_DEFAULT_COLLECTION=
 SRV_JWT_SECRET_KEY=RgUkXp2s5v8y/B?E(H+KbPeShVmYq3t6
 SRV_JWT_TOKEN_EXP=300
+
+export SRV_PORT=8080
+export SRV_MODE=developer
+export SRV_MDB_URI=mongodb://admin:supersenha@localhost:27017/
+export SRV_MDB_NAME=sera_db
+export SRV_MDB_DEFAULT_COLLECTION=cfSera
+export SRV_JWT_SECRET_KEY=RgUkXp2s5v8y/B?E(H+KbPeShVmYq3t6
+export SRV_JWT_TOKEN_EXP=300

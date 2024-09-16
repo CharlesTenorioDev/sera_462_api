@@ -28,6 +28,7 @@ type UserServiceInterface interface {
 	Create(ctx context.Context, user *model.Usuario) (*model.Usuario, error)
 	Update(ctx context.Context, ID string, userToChange *model.Usuario) (bool, error)
 	ChangePassword(ctx context.Context, currentPassword, newPassword string, userRequest *model.Usuario) error
+	CheckExists(ctx context.Context, ID string) bool
 }
 
 type UserDataService struct {
@@ -286,4 +287,33 @@ func (uds *UserDataService) ChangePassword(ctx context.Context, currentPassword,
 	}
 
 	return nil
+}
+
+func (uds *UserDataService) CheckExists(ctx context.Context, ID string) bool {
+	collection := uds.mdb.GetCollection("usuarios")
+
+	// Converte a string ID para um ObjectID do MongoDB
+	objectID, err := primitive.ObjectIDFromHex(ID)
+	if err != nil {
+		log.Println("Invalid ID format:", err)
+		return false
+	}
+
+	// Cria um filtro para pesquisar pelo _id
+	filter := bson.M{"_id": objectID}
+
+	// Usa FindOne para verificar se o usuário existe
+	err = collection.FindOne(ctx, filter).Err()
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			// Usuário não encontrado
+			return false
+		}
+		// Outro erro ocorreu
+		log.Println("Error checking user existence:", err)
+		return false
+	}
+
+	// Usuário encontrado
+	return true
 }

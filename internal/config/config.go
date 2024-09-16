@@ -82,8 +82,6 @@ func defaultConf() *Config {
 		JWTTokenExp:  300,
 		// 15m
 		MongoDBConfig: MongoDBConfig{
-			MDB_URI:                "mongodb://mongo:aPWYuWZnQSYtMEwflwVsaktelQaqbnwa@junction.proxy.rlwy.net:10961",
-			MDB_NAME:               "db_sera",
 			MDB_DEFAULT_COLLECTION: "cfSera",
 		},
 	}
