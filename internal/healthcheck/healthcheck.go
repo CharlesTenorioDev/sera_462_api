@@ -19,6 +19,6 @@ func healthchecka(service healthcheck.HealthcheckServiceInterface) http.HandlerF
 		}
 
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"MSG": "Banco de dados Redis conectado", "codigo": 200}`))
+		w.Write([]byte(`{"MSG": "Banco de dados USA A PORRA DO GIT", "codigo": 200}`))
 	}
 }
