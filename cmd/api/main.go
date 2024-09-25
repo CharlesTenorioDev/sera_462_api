@@ -15,6 +15,7 @@ import (
 
 	"github.com/sera_backend/pkg/server"
 
+	service_asaas "github.com/sera_backend/pkg/service/asaas"
 	serviceHealthcheck "github.com/sera_backend/pkg/service/healthcheck"
 	service_instituicao "github.com/sera_backend/pkg/service/instituicao"
 	service_usr "github.com/sera_backend/pkg/service/user"
@@ -39,6 +40,7 @@ func main() {
 	usr_service := service_usr.NewUsuarioservice(mogDbConn)
 
 	inst_service := service_instituicao.NewInstituicaoervice(mogDbConn)
+	asaas_service := service_asaas.NewClient(conf)
 
 	handServiceHealthcheck := serviceHealthcheck.NewHealthcheckService(mogDbConn)
 
@@ -58,7 +60,7 @@ func main() {
 
 	r.Get("/", healthcheck)
 	hand_usr.RegisterUsuarioAPIHandlers(r, usr_service)
-	hand_instituicao.RegisterInstituicaoHandlers(r, inst_service, usr_service)
+	hand_instituicao.RegisterInstituicaoHandlers(r, inst_service, usr_service, asaas_service)
 	handHealthcheck.RegisterHealthcheckAPIHandlers(r, handServiceHealthcheck)
 
 	// Inicie o worker em uma goroutine

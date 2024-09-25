@@ -9,6 +9,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/sera_backend/internal/config/logger"
+	"github.com/sera_backend/internal/dto"
+	"github.com/sera_backend/pkg/service/asaas"
 	"github.com/sera_backend/pkg/service/instituicao"
 
 	"github.com/sera_backend/pkg/service/validation"
@@ -19,7 +21,7 @@ import (
 	"github.com/sera_backend/pkg/service/user"
 )
 
-func createInstituicao(service instituicao.InstituicaoServiceInterface, userService user.UserServiceInterface) http.HandlerFunc {
+func createInstituicao(service instituicao.InstituicaoServiceInterface, userService user.UserServiceInterface, clientAsaas asaas.AsaasClientInterface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		Instituicao := &model.Instituicao{}
 
@@ -48,10 +50,25 @@ func createInstituicao(service instituicao.InstituicaoServiceInterface, userServ
 
 		}
 
-		_, err = service.Create(r.Context(), *Instituicao)
+		instituicao, err := service.Create(r.Context(), *Instituicao)
 		if err != nil {
 			logger.Error("erro ao acessar a camada de service do mpg", err)
 			http.Error(w, "Error ou salvar Instituicao"+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		var customerData dto.CustomerInputAsaasDTO
+
+		customerData.Name = instituicao.Nome
+		customerData.CpfCnpj = instituicao.CNPJ
+		customerData.Phone = instituicao.Telefone
+		customerData.MobilePhone = instituicao.Telefone
+		customerData.ExternalReference = instituicao.ID.Hex()
+		_, err = clientAsaas.CreateCliente(customerData)
+
+		if err != nil {
+			logger.Error("erro ao acessar a camada de service do asaas", err)
+			http.Error(w, "Error ou salvar LinkedInuicao"+err.Error(), http.StatusInternalServerError)
 			return
 		}
 

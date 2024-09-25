@@ -12,12 +12,26 @@ import (
 	"github.com/sera_backend/internal/dto"
 )
 
+// Define an interface for the Asaas client
+type AsaasClientInterface interface {
+	DoRequest(method, endpoint string, payload interface{}) (*http.Response, error)
+	GetClienteByID(clienteID string) (bool, error)
+	CreateCliente(conclienteData dto.CustomerInputAsaasDTO) (bool, error)
+	UpdateCliente(clienteID string, clienteData dto.CustomerInputAsaasDTO) (bool, error)
+	NovaAssinatura(subscriptionData dto.SubscriptionInputDTO) (bool, error)
+	ListaAssinaturas(billingType, status string) (*http.Response, error)
+	GetAssinatura(subscriptionID string) (*http.Response, error)
+}
+
 type Client struct {
 	apiKey  string
 	baseUrl string
 	wallet  string
 	cliente *http.Client
 }
+
+// Ensure Client implements AsaasClientInterface
+var _ AsaasClientInterface = (*Client)(nil)
 
 func NewClient(cfg *config.Config) *Client {
 	return &Client{
@@ -78,31 +92,56 @@ func (c *Client) GetClienteByID(clienteID string) (bool, error) {
 	return false, errors.New("unexpected status code")
 }
 
-// Function to create a new client
-func (c *Client) CreateCliente(clienteData dto.CustomerInputAsaasDTO) (*http.Response, error) {
+func (c *Client) CreateCliente(clienteData dto.CustomerInputAsaasDTO) (bool, error) {
 	endpoint := "/api/v3/customers"
-	return c.DoRequest(http.MethodPost, endpoint, clienteData)
+	resp, err := c.DoRequest(http.MethodPost, endpoint, clienteData)
+	if err != nil {
+		return false, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusCreated {
+		return true, nil
+	}
+
+	return false, errors.New("failed to create cliente")
 }
 
-// Function to update an existing client
-func (c *Client) UpdateCliente(clienteID string, clienteData dto.CustomerInputAsaasDTO) (*http.Response, error) {
+func (c *Client) UpdateCliente(clienteID string, clienteData dto.CustomerInputAsaasDTO) (bool, error) {
 	endpoint := "/api/v3/customers/" + clienteID
-	return c.DoRequest(http.MethodPut, endpoint, clienteData)
+	resp, err := c.DoRequest(http.MethodPut, endpoint, clienteData)
+	if err != nil {
+		return false, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusOK {
+		return true, nil
+	}
+
+	return false, errors.New("failed to update cliente")
 }
 
-// Function to create a new subscription
-func (c *Client) NovaAssinatura(subscriptionData dto.SubscriptionInputDTO) (*http.Response, error) {
+func (c *Client) NovaAssinatura(subscriptionData dto.SubscriptionInputDTO) (bool, error) {
 	endpoint := "/api/v3/subscriptions"
-	return c.DoRequest(http.MethodPost, endpoint, subscriptionData)
+	resp, err := c.DoRequest(http.MethodPost, endpoint, subscriptionData)
+	if err != nil {
+		return false, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusCreated {
+		return true, nil
+	}
+
+	return false, errors.New("failed to create subscription")
 }
 
-// client.ListaAssinaturas("CREDIT_CARD", "ACTIVE")
 func (c *Client) ListaAssinaturas(billingType, status string) (*http.Response, error) {
 	endpoint := "/api/v3/subscriptions?billingType=" + billingType + "&status=" + status
 	return c.DoRequest(http.MethodGet, endpoint, nil)
 }
 
-// F client.GetAssinatura("sub_5u51vszvwg3ab71g")unction to get a specific subscription by ID
 func (c *Client) GetAssinatura(subscriptionID string) (*http.Response, error) {
 	endpoint := "/api/v3/subscriptions/" + subscriptionID
 	return c.DoRequest(http.MethodGet, endpoint, nil)
