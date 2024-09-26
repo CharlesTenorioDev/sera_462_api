@@ -24,11 +24,12 @@ type CustomerInputAsaasDTO struct {
 }
 
 type SubscriptionInputDTO struct {
-	BillingType string  `json:"billingType"`
-	Cycle       string  `json:"cycle"`
-	Customer    string  `json:"customer"`
-	Value       float64 `json:"value"`
-	NextDueDate string  `json:"nextDueDate"`
-	Description string  `json:"description"`
-	MaxPayments int     `json:"maxPayments"`
+	BillingType       string  `json:"billingType"`
+	Cycle             string  `json:"cycle"`
+	Customer          string  `json:"customer"`
+	Value             float64 `json:"value"`
+	NextDueDate       string  `json:"nextDueDate"`
+	Description       string  `json:"description"`
+	MaxPayments       int     `json:"maxPayments"`
+	ExternalReference string  `json:"externalReference"`
 }

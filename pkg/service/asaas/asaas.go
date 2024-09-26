@@ -1,22 +1,25 @@
 package asaas
 
 import (
-	"bytes"
-	"encoding/json"
+	"context"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/sera_backend/internal/config"
+	"github.com/sera_backend/internal/config/logger"
 	"github.com/sera_backend/internal/dto"
 )
 
 // Define an interface for the Asaas client
 type AsaasClientInterface interface {
-	DoRequest(method, endpoint string, payload interface{}) (*http.Response, error)
+	DoRequest(method, endpoint string, payload io.Reader) (*http.Response, error)
 	GetClienteByID(clienteID string) (bool, error)
-	CreateCliente(conclienteData dto.CustomerInputAsaasDTO) (bool, error)
+	CreateCliente(ctx context.Context, conclienteData dto.CustomerInputAsaasDTO) (bool, error)
 	UpdateCliente(clienteID string, clienteData dto.CustomerInputAsaasDTO) (bool, error)
 	NovaAssinatura(subscriptionData dto.SubscriptionInputDTO) (bool, error)
 	ListaAssinaturas(billingType, status string) (*http.Response, error)
@@ -51,19 +54,10 @@ func NewClient(cfg *config.Config) *Client {
 	}
 }
 
-func (c *Client) DoRequest(method, endpoint string, payload interface{}) (*http.Response, error) {
+func (c *Client) DoRequest(method, endpoint string, payload io.Reader) (*http.Response, error) {
 	url := c.baseUrl + endpoint
 
-	var body io.Reader
-	if payload != nil {
-		data, err := json.Marshal(payload)
-		if err != nil {
-			return nil, err
-		}
-		body = bytes.NewBuffer(data)
-	}
-
-	req, err := http.NewRequest(method, url, body)
+	req, err := http.NewRequest(method, url, payload)
 	if err != nil {
 		return nil, err
 	}
@@ -72,9 +66,19 @@ func (c *Client) DoRequest(method, endpoint string, payload interface{}) (*http.
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("access_token", c.apiKey)
 
-	return c.cliente.Do(req)
-}
+	logger.Info("api key" + c.apiKey)
 
+	// Logging the request for debugging
+	logger.Info("Sending request to URL: " + url)
+
+	resp, err := c.cliente.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	logger.Info("Response Status Code: " + strconv.Itoa(resp.StatusCode))
+	return resp, nil
+}
 func (c *Client) GetClienteByID(clienteID string) (bool, error) {
 	endpoint := "/api/v3/customers/" + clienteID
 	resp, err := c.DoRequest(http.MethodGet, endpoint, nil)
@@ -92,15 +96,31 @@ func (c *Client) GetClienteByID(clienteID string) (bool, error) {
 	return false, errors.New("unexpected status code")
 }
 
-func (c *Client) CreateCliente(clienteData dto.CustomerInputAsaasDTO) (bool, error) {
+func (c *Client) CreateCliente(ctx context.Context, clienteData dto.CustomerInputAsaasDTO) (bool, error) {
 	endpoint := "/api/v3/customers"
-	resp, err := c.DoRequest(http.MethodPost, endpoint, clienteData)
+
+	// Construct the payload as a JSON string
+	payload := strings.NewReader(`{
+		"name": "` + clienteData.Name + `",
+		"cpfCnpj": "` + clienteData.CpfCnpj + `",
+		"email": "` + clienteData.Email + `",
+		"phone": "` + clienteData.Phone + `",
+		"mobilePhone": "` + clienteData.MobilePhone + `",
+		"address": "` + clienteData.Address + `",
+		"addressNumber": "` + clienteData.AddressNumber + `",
+		"province": "` + clienteData.Province + `",
+		"postalCode": "` + clienteData.PostalCode + `",
+		"externalReference": "` + clienteData.ExternalReference + `"
+	}`)
+
+	resp, err := c.DoRequest(http.MethodPost, endpoint, payload)
 	if err != nil {
+		logger.Error("failed to create cliente no asas_api_key", err)
 		return false, err
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusCreated {
+	if resp.StatusCode == http.StatusOK {
 		return true, nil
 	}
 
@@ -109,7 +129,20 @@ func (c *Client) CreateCliente(clienteData dto.CustomerInputAsaasDTO) (bool, err
 
 func (c *Client) UpdateCliente(clienteID string, clienteData dto.CustomerInputAsaasDTO) (bool, error) {
 	endpoint := "/api/v3/customers/" + clienteID
-	resp, err := c.DoRequest(http.MethodPut, endpoint, clienteData)
+
+	payload := strings.NewReader(`{
+		"name": "` + clienteData.Name + `",
+		"cpfCnpj": "` + clienteData.CpfCnpj + `",
+		"email": "` + clienteData.Email + `",
+		"phone": "` + clienteData.Phone + `",
+		"mobilePhone": "` + clienteData.MobilePhone + `",
+		"address": "` + clienteData.Address + `",
+		"addressNumber": "` + clienteData.AddressNumber + `",
+		"province": "` + clienteData.Province + `",
+		"postalCode": "` + clienteData.PostalCode + `",
+		"externalReference": "` + clienteData.ExternalReference + `"
+	}`)
+	resp, err := c.DoRequest(http.MethodPut, endpoint, payload)
 	if err != nil {
 		return false, err
 	}
@@ -124,13 +157,26 @@ func (c *Client) UpdateCliente(clienteID string, clienteData dto.CustomerInputAs
 
 func (c *Client) NovaAssinatura(subscriptionData dto.SubscriptionInputDTO) (bool, error) {
 	endpoint := "/api/v3/subscriptions"
-	resp, err := c.DoRequest(http.MethodPost, endpoint, subscriptionData)
+
+	// Construct the JSON payload manually
+	payload := strings.NewReader(`{
+		"billingType": "` + subscriptionData.BillingType + `",
+		"cycle": "` + subscriptionData.Cycle + `",
+		"customer": "` + subscriptionData.Customer + `",
+		"value": ` + fmt.Sprintf("%f", subscriptionData.Value) + `,
+		"nextDueDate": "` + subscriptionData.NextDueDate + `",
+		"description": "` + subscriptionData.Description + `",
+		"maxPayments": ` + fmt.Sprintf("%d", subscriptionData.MaxPayments) + `,
+		"externalReference": "` + subscriptionData.ExternalReference + `"
+	}`)
+
+	resp, err := c.DoRequest(http.MethodPost, endpoint, payload)
 	if err != nil {
 		return false, err
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusCreated {
+	if resp.StatusCode == http.StatusOK {
 		return true, nil
 	}
 

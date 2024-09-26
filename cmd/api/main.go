@@ -7,6 +7,7 @@ import (
 	"github.com/sera_backend/internal/config"
 	"github.com/sera_backend/internal/config/logger"
 
+	hand_asaas "github.com/sera_backend/internal/handler/asaas"
 	hand_instituicao "github.com/sera_backend/internal/handler/instituicao"
 	hand_usr "github.com/sera_backend/internal/handler/user"
 	handHealthcheck "github.com/sera_backend/internal/healthcheck"
@@ -60,7 +61,8 @@ func main() {
 
 	r.Get("/", healthcheck)
 	hand_usr.RegisterUsuarioAPIHandlers(r, usr_service)
-	hand_instituicao.RegisterInstituicaoHandlers(r, inst_service, usr_service, asaas_service)
+	hand_instituicao.RegisterInstituicaoHandlers(r, inst_service, usr_service)
+	hand_asaas.RegisterAsaasHandlers(r, asaas_service)
 	handHealthcheck.RegisterHealthcheckAPIHandlers(r, handServiceHealthcheck)
 
 	// Inicie o worker em uma goroutine
