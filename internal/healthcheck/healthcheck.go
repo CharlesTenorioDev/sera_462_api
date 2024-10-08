@@ -19,6 +19,6 @@ func healthchecka(service healthcheck.HealthcheckServiceInterface) http.HandlerF
 		}
 
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"MSG": "Banco de dados MongoDB ok", "codigo": 200}`))
+		w.Write([]byte(`{"MSG": "IAMGEM MAIS", "codigo": 200}`))
 	}
 }

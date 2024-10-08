@@ -24,6 +24,7 @@ type Config struct {
 	DataInicial   time.Time
 	DataFinal     time.Time
 	AsaasConfig   `json:"asaas_config"`
+	Llama         LlamaConfig `json:"llama_config"`
 }
 
 type MongoDBConfig struct {
@@ -37,6 +38,11 @@ type AsaasConfig struct {
 	ASAAS_API_KEY   string `json:"asas_api_key"`
 	ASAAS_WALLET_ID string `json:"asas_wallet_id"`
 	ASAAS_TIMEOUT   int    `json:"asas_timeout"`
+}
+
+type LlamaConfig struct {
+	SRV_Llama_URL     string `json:"srv_llama_url"`
+	SRV_Llama_API_KEY string `json:"srv_llama_api_key"`
 }
 
 func NewConfig() *Config {
@@ -97,6 +103,17 @@ func NewConfig() *Config {
 		conf.AsaasConfig.ASAAS_TIMEOUT, _ = strconv.Atoi(SRV_ASAAS_TIMEOUT)
 	}
 
+	//Llama
+	SRV_Llama_URL := os.Getenv("SRV_Llama_URL")
+	if SRV_Llama_URL != "" {
+		conf.Llama.SRV_Llama_URL = SRV_Llama_URL
+	}
+
+	SRV_Llama_API_KEY := os.Getenv("SRV_Llama_API_KEY")
+	if SRV_Llama_API_KEY != "" {
+		conf.Llama.SRV_Llama_API_KEY = SRV_Llama_API_KEY
+	}
+
 	return conf
 }
 
@@ -114,6 +131,10 @@ func defaultConf() *Config {
 
 		AsaasConfig: AsaasConfig{
 			URL_ASAAS: "https://sandbox.asaas.com/api/",
+		},
+
+		Llama: LlamaConfig{
+			SRV_Llama_URL: "https://api.llama-api.com",
 		},
 	}
 	// Adicione as coleções padrão ao mapa MDB_COLLECTIONS
