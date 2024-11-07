@@ -1,23 +1,18 @@
-version: '3.9'
-
 services:
-  
   mongodb:
     image: mongo:latest
     container_name: db_mongo
-    # restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: supersenha
+      SRV_ASAAS_API_KEY: ${SRV_ASAAS_API_KEY}
     volumes: 
-     - ./tmp_data/mongodb_data:/data/db
+      - ./tmp_data/mongodb_data:/data/db
     ports:
       - 27017:27017
     networks:
       - user-bridge
-  
-  
 
 networks:
   user-bridge:
-    name: user-bridge
+    external: true

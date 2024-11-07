@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/sera_backend/internal/config/logger"
 
 	hand_asaas "github.com/sera_backend/internal/handler/asaas"
+	hand_gemini "github.com/sera_backend/internal/handler/gemini"
 	hand_instituicao "github.com/sera_backend/internal/handler/instituicao"
 	hand_usr "github.com/sera_backend/internal/handler/user"
 	handHealthcheck "github.com/sera_backend/internal/healthcheck"
@@ -16,6 +18,7 @@ import (
 
 	"github.com/sera_backend/pkg/server"
 
+	service_gemini "github.com/sera_backend/pkg/server/gemini"
 	service_asaas "github.com/sera_backend/pkg/service/asaas"
 	serviceHealthcheck "github.com/sera_backend/pkg/service/healthcheck"
 	service_instituicao "github.com/sera_backend/pkg/service/instituicao"
@@ -44,6 +47,10 @@ func main() {
 	asaas_service := service_asaas.NewClient(conf)
 
 	handServiceHealthcheck := serviceHealthcheck.NewHealthcheckService(mogDbConn)
+	gemini_service, err := service_gemini.NewGeminiClient(context.Background(), conf)
+	if err != nil {
+		logger.Error("Erro to make Connect DB:"+err.Error(), err)
+	}
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -64,6 +71,7 @@ func main() {
 	hand_instituicao.RegisterInstituicaoHandlers(r, inst_service, usr_service)
 	hand_asaas.RegisterAsaasHandlers(r, asaas_service)
 	handHealthcheck.RegisterHealthcheckAPIHandlers(r, handServiceHealthcheck)
+	hand_gemini.RegisterGeminiAPIHandlers(r, gemini_service)
 
 	// Inicie o worker em uma goroutine
 

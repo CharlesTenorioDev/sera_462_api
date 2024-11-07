@@ -125,7 +125,7 @@ func NewConfig() *Config {
 		conf.GptConfig.SRV_GPT_MODEL = gptModel
 	}
 
-	if giminiApiKey := os.Getenv("SRV_GIMINI_API_KEY"); giminiApiKey != "" {
+	if giminiApiKey := os.Getenv("GEMINI_API_KEY"); giminiApiKey != "" {
 		conf.GiminiConfig.API_KEY = giminiApiKey
 	}
 

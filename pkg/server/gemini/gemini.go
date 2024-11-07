@@ -6,10 +6,11 @@ import (
 
 	"github.com/google/generative-ai-go/genai"
 	"github.com/sera_backend/internal/config"
+	"github.com/sera_backend/internal/config/logger"
 	"google.golang.org/api/option"
 )
 
-type Gemini interface {
+type GeminiServiceInterface interface {
 	MontarQuestionario(ctx context.Context, pergunta string) ([]string, error)
 }
 
@@ -17,9 +18,10 @@ type GeminiClient struct {
 	client *genai.Client
 }
 
-func NewGeminiClient(ctx context.Context, cfg *config.Config) (Gemini, error) {
+func NewGeminiClient(ctx context.Context, cfg *config.Config) (*GeminiClient, error) {
 	client, err := genai.NewClient(ctx, option.WithAPIKey(cfg.GiminiConfig.API_KEY))
 	if err != nil {
+		logger.Info(cfg.GptConfig.SRV_GPT_API_KEY)
 		return nil, err
 	}
 	return &GeminiClient{client: client}, nil
