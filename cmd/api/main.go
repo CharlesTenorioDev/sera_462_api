@@ -18,8 +18,8 @@ import (
 
 	"github.com/sera_backend/pkg/server"
 
-	service_gemini "github.com/sera_backend/pkg/server/gemini"
 	service_asaas "github.com/sera_backend/pkg/service/asaas"
+	service_gemini "github.com/sera_backend/pkg/service/gemini"
 	serviceHealthcheck "github.com/sera_backend/pkg/service/healthcheck"
 	service_instituicao "github.com/sera_backend/pkg/service/instituicao"
 	service_usr "github.com/sera_backend/pkg/service/user"

@@ -2,7 +2,7 @@ package gemini
 
 import (
 	"github.com/go-chi/chi/v5"
-	"github.com/sera_backend/pkg/server/gemini"
+	"github.com/sera_backend/pkg/service/gemini"
 )
 
 func RegisterGeminiAPIHandlers(r chi.Router, service gemini.GeminiServiceInterface) {

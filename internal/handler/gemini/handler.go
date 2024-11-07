@@ -7,7 +7,7 @@ import (
 
 	"github.com/sera_backend/internal/config/logger"
 	"github.com/sera_backend/pkg/model"
-	"github.com/sera_backend/pkg/server/gemini"
+	"github.com/sera_backend/pkg/service/gemini"
 )
 
 func createQuestion(service gemini.GeminiServiceInterface) http.HandlerFunc {
