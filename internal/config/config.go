@@ -24,7 +24,9 @@ type Config struct {
 	DataInicial   time.Time
 	DataFinal     time.Time
 	AsaasConfig   `json:"asaas_config"`
-	Llama         LlamaConfig `json:"llama_config"`
+	LlamaConfig   *LlamaConfig  `json:"llama_config"`
+	GptConfig     *GptConfig    `json:"gpt_config"`
+	GiminiConfig  *GiminiConfig `json:"gimini_config"`
 }
 
 type MongoDBConfig struct {
@@ -45,101 +47,119 @@ type LlamaConfig struct {
 	SRV_Llama_API_KEY string `json:"srv_llama_api_key"`
 }
 
+type GptConfig struct {
+	SRV_GPT_URL     string `json:"srv_gpt_url"`
+	SRV_GPT_API_KEY string `json:"srv_gpt_api_key"`
+	SRV_GPT_MODEL   string `json:"srv_gpt_model"`
+}
+
+type GiminiConfig struct {
+	API_KEY string `json:"srv_api_key"`
+	MODEL   string `json:"srv_model"`
+}
+
 func NewConfig() *Config {
 	conf := defaultConf()
 
-	SRV_PORT := os.Getenv("SRV_PORT")
-	if SRV_PORT != "" {
-		conf.PORT = SRV_PORT
+	if port := os.Getenv("SRV_PORT"); port != "" {
+		conf.PORT = port
 	}
 
-	SRV_MODE := os.Getenv("SRV_MODE")
-	if SRV_MODE != "" {
-		conf.Mode = SRV_MODE
+	if mode := os.Getenv("SRV_MODE"); mode != "" {
+		conf.Mode = mode
 	}
 
-	SRV_MDB_URI := os.Getenv("SRV_MDB_URI")
-	if SRV_MDB_URI != "" {
-		conf.MDB_URI = SRV_MDB_URI
+	if uri := os.Getenv("SRV_MDB_URI"); uri != "" {
+		conf.MDB_URI = uri
 	}
 
-	SRV_MDB_NAME := os.Getenv("SRV_MDB_NAME")
-	if SRV_MDB_NAME != "" {
-		conf.MDB_NAME = SRV_MDB_NAME
+	if name := os.Getenv("SRV_MDB_NAME"); name != "" {
+		conf.MDB_NAME = name
 	}
 
-	SRV_MDB_DEFAULT_COLLECTION := os.Getenv("SRV_MDB_DEFAULT_COLLECTION")
-	if SRV_MDB_DEFAULT_COLLECTION != "" {
-		conf.MDB_DEFAULT_COLLECTION = SRV_MDB_DEFAULT_COLLECTION
+	if collection := os.Getenv("SRV_MDB_DEFAULT_COLLECTION"); collection != "" {
+		conf.MDB_DEFAULT_COLLECTION = collection
 	}
 
-	SRV_JWT_SECRET_KEY := os.Getenv("SRV_JWT_SECRET_KEY")
-	if SRV_JWT_SECRET_KEY != "" {
-		conf.JWTSecretKey = SRV_JWT_SECRET_KEY
+	if secretKey := os.Getenv("SRV_JWT_SECRET_KEY"); secretKey != "" {
+		conf.JWTSecretKey = secretKey
 	}
 
-	SRV_JWT_TOKEN_EXP := os.Getenv("SRV_JWT_TOKEN_EXP")
-	if SRV_JWT_SECRET_KEY != "" {
-		conf.JWTTokenExp, _ = strconv.Atoi(SRV_JWT_TOKEN_EXP)
+	if tokenExp := os.Getenv("SRV_JWT_TOKEN_EXP"); tokenExp != "" {
+		conf.JWTTokenExp, _ = strconv.Atoi(tokenExp)
 	}
 
-	SRV_ASAAS_URL_ASAAS := os.Getenv("SRV_ASAAS_URL_ASAAS")
-	if SRV_ASAAS_URL_ASAAS != "" {
-		conf.AsaasConfig.URL_ASAAS = SRV_ASAAS_URL_ASAAS
+	if urlAsaas := os.Getenv("SRV_ASAAS_URL_ASAAS"); urlAsaas != "" {
+		conf.AsaasConfig.URL_ASAAS = urlAsaas
 	}
 
-	SRV_ASAAS_API_KEY := os.Getenv("SRV_ASAAS_API_KEY")
-	if SRV_ASAAS_API_KEY != "" {
-		conf.AsaasConfig.ASAAS_API_KEY = SRV_ASAAS_API_KEY
+	if apiKey := os.Getenv("SRV_ASAAS_API_KEY"); apiKey != "" {
+		conf.AsaasConfig.ASAAS_API_KEY = apiKey
 	}
 
-	SRV_ASAAS_WALLET_ID := os.Getenv("SRV_ASAAS_WALLET_ID")
-	if SRV_ASAAS_WALLET_ID != "" {
-		conf.AsaasConfig.ASAAS_WALLET_ID = SRV_ASAAS_WALLET_ID
+	if walletId := os.Getenv("SRV_ASAAS_WALLET_ID"); walletId != "" {
+		conf.AsaasConfig.ASAAS_WALLET_ID = walletId
 	}
 
-	SRV_ASAAS_TIMEOUT := os.Getenv("SRV_ASAAS_TIMEOUT")
-	if SRV_ASAAS_TIMEOUT != "" {
-		conf.AsaasConfig.ASAAS_TIMEOUT, _ = strconv.Atoi(SRV_ASAAS_TIMEOUT)
+	if timeout := os.Getenv("SRV_ASAAS_TIMEOUT"); timeout != "" {
+		conf.AsaasConfig.ASAAS_TIMEOUT, _ = strconv.Atoi(timeout)
 	}
 
-	//Llama
-	SRV_Llama_URL := os.Getenv("SRV_Llama_URL")
-	if SRV_Llama_URL != "" {
-		conf.Llama.SRV_Llama_URL = SRV_Llama_URL
+	if llamaUrl := os.Getenv("SRV_Llama_URL"); llamaUrl != "" {
+		conf.LlamaConfig.SRV_Llama_URL = llamaUrl
 	}
 
-	SRV_Llama_API_KEY := os.Getenv("SRV_Llama_API_KEY")
-	if SRV_Llama_API_KEY != "" {
-		conf.Llama.SRV_Llama_API_KEY = SRV_Llama_API_KEY
+	if llamaApiKey := os.Getenv("SRV_Llama_API_KEY"); llamaApiKey != "" {
+		conf.LlamaConfig.SRV_Llama_API_KEY = llamaApiKey
+	}
+
+	if gptUrl := os.Getenv("SRV_GPT_URL"); gptUrl != "" {
+		conf.GptConfig.SRV_GPT_URL = gptUrl
+	}
+
+	if gptApiKey := os.Getenv("SRV_GPT_API_KEY"); gptApiKey != "" {
+		conf.GptConfig.SRV_GPT_API_KEY = gptApiKey
+	}
+
+	if gptModel := os.Getenv("SRV_GPT_MODEL"); gptModel != "" {
+		conf.GptConfig.SRV_GPT_MODEL = gptModel
+	}
+
+	if giminiApiKey := os.Getenv("SRV_GIMINI_API_KEY"); giminiApiKey != "" {
+		conf.GiminiConfig.API_KEY = giminiApiKey
+	}
+
+	if giminiModel := os.Getenv("SRV_GIMINI_MODEL"); giminiModel != "" {
+		conf.GiminiConfig.MODEL = giminiModel
 	}
 
 	return conf
 }
 
 func defaultConf() *Config {
-
-	default_conf := Config{
+	defaultConf := &Config{
 		PORT:         "8080",
 		Mode:         DEVELOPER,
-		JWTSecretKey: "RgUkXp2s5v8y/B?EH+KbPeShVmYq3t6", // "----your-256-bit-secret-here----" length 32
+		JWTSecretKey: "RgUkXp2s5v8y/B?EH+KbPeShVmYq3t6",
 		JWTTokenExp:  300,
-		// 15m
 		MongoDBConfig: MongoDBConfig{
 			MDB_DEFAULT_COLLECTION: "cfSera",
 		},
-
 		AsaasConfig: AsaasConfig{
 			URL_ASAAS: "https://sandbox.asaas.com/api/",
 		},
-
-		Llama: LlamaConfig{
+		LlamaConfig: &LlamaConfig{
 			SRV_Llama_URL: "https://api.llama-api.com",
 		},
+		GptConfig: &GptConfig{
+			SRV_GPT_URL: "https://api.openai.com/v1/chat/completions",
+		},
+		GiminiConfig: &GiminiConfig{
+			MODEL: "gemini-1.5-flash",
+		},
 	}
-	// Adicione as coleções padrão ao mapa MDB_COLLECTIONS
 
-	default_conf.TokenAuth = jwtauth.New("HS256", []byte(default_conf.JWTSecretKey), nil)
+	defaultConf.TokenAuth = jwtauth.New("HS256", []byte(defaultConf.JWTSecretKey), nil)
 
-	return &default_conf
+	return defaultConf
 }

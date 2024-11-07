@@ -4,6 +4,7 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type Questionario struct {
 	ID            primitive.ObjectID   `bson:"_id,omitempty" json:"_id,omitempty"`
+	IDInstituicao primitive.ObjectID   `bson:"id_instituicao" json:"id_instituicao"`
 	IDMateria     primitive.ObjectID   `bson:"id_materia" json:"id_materia"`
 	Assunto       string               `bson:"assunto" json:"assunto"`
 	Turmas        []primitive.ObjectID `bson:"turmas" json:"turmas"`
