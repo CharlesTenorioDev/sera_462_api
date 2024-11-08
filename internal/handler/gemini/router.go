@@ -5,7 +5,7 @@ import (
 	"github.com/sera_backend/pkg/service/gemini"
 )
 
-func RegisterGeminiAPIHandlers(r chi.Router, service gemini.GeminiServiceInterface) {
+func RegisterGeminiAPIHandlers(r chi.Router, service gemini.GminiClientInterface) {
 	r.Route("/api/v1/gemini", func(r chi.Router) {
 		r.Post("/add", createQuestion(service))
 

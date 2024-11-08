@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log"
 	"net/http"
 
@@ -47,10 +46,7 @@ func main() {
 	asaas_service := service_asaas.NewClient(conf)
 
 	handServiceHealthcheck := serviceHealthcheck.NewHealthcheckService(mogDbConn)
-	gemini_service, err := service_gemini.NewGeminiClient(context.Background(), conf)
-	if err != nil {
-		logger.Error("Erro to make Connect DB:"+err.Error(), err)
-	}
+	gemini_service := service_gemini.NewClient(conf)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)

@@ -10,7 +10,7 @@ import (
 	"github.com/sera_backend/pkg/service/gemini"
 )
 
-func createQuestion(service gemini.GeminiServiceInterface) http.HandlerFunc {
+func createQuestion(service gemini.GminiClientInterface) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		perg := &model.PerguntaGeminai{}
@@ -30,7 +30,15 @@ func createQuestion(service gemini.GeminiServiceInterface) http.HandlerFunc {
 		// 	return
 		// }
 
-		result, err := service.MontarQuestionario(r.Context(), perg.Perguntas)
+		contents := []map[string]interface{}{
+			{
+				"parts": []map[string]string{
+					{"text": perg.Perguntas, "type": "text/plain"},
+				},
+			},
+		}
+
+		result, err := service.DoRequest("POST", contents)
 		if err != nil {
 			logger.Error("erro ao criar usuario", err)
 			w.WriteHeader(http.StatusInternalServerError)

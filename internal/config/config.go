@@ -54,8 +54,8 @@ type GptConfig struct {
 }
 
 type GiminiConfig struct {
-	API_KEY string `json:"srv_api_key"`
-	MODEL   string `json:"srv_model"`
+	API_KEY string `json:"api_key"`
+	URL     string `json:"url"`
 }
 
 func NewConfig() *Config {
@@ -129,8 +129,8 @@ func NewConfig() *Config {
 		conf.GiminiConfig.API_KEY = giminiApiKey
 	}
 
-	if giminiModel := os.Getenv("SRV_GIMINI_MODEL"); giminiModel != "" {
-		conf.GiminiConfig.MODEL = giminiModel
+	if giminiUrl := os.Getenv("GIMINI_URL"); giminiUrl != "" {
+		conf.GiminiConfig.URL = giminiUrl
 	}
 
 	return conf
@@ -155,7 +155,7 @@ func defaultConf() *Config {
 			SRV_GPT_URL: "https://api.openai.com/v1/chat/completions",
 		},
 		GiminiConfig: &GiminiConfig{
-			MODEL: "gemini-1.5-flash",
+			URL: "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=",
 		},
 	}
 
