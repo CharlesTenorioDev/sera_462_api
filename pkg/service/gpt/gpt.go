@@ -12,7 +12,7 @@ import (
 )
 
 type GptClientInterface interface {
-	DoRequest(method, endpoint string, messages []map[string]string) (*http.Response, error)
+	DoRequest(method, messages string) (map[string]interface{}, error)
 }
 
 type ClientGpt struct {
@@ -44,40 +44,48 @@ func NewClient(cfg *config.Config) *ClientGpt {
 	}
 }
 
-func (c *ClientGpt) DoRequest(method, endpoint string, messages []map[string]string) (*http.Response, error) {
-	url := c.baseUrl + endpoint
+func (c *ClientGpt) DoRequest(method, messages string) (map[string]interface{}, error) {
+	url := c.baseUrl
 
 	// Create the payload with the model from the config
 	payload := map[string]interface{}{
-		"model":    c.model,
-		"messages": messages,
+		"model": c.model,
+		"messages": []map[string]string{
+			{"role": "user", "content": messages},
+		},
 	}
 
 	// Marshal the payload to JSON
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
+		logger.Error("error to convert Client to JSON para GPT", err)
 		return nil, err
 	}
 
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(jsonPayload))
 	if err != nil {
+		logger.Error("error to create request GPT", err)
 		return nil, err
 	}
 
 	req.Header.Add("accept", "application/json")
 	req.Header.Add("content-type", "application/json")
-	req.Header.Add("access_token", c.apiKey)
-
-	logger.Info("api key" + c.apiKey)
-
-	// Logging the request for debugging
-	logger.Info("Sending request to URL: " + url)
+	req.Header.Add("Authorization", "Bearer "+c.apiKey)
 
 	resp, err := c.cliente.Do(req)
 	if err != nil {
+		logger.Error("error to send request GPT", err)
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	// Read and parse the response body
+	var result map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		logger.Error("error decoding response body", err)
 		return nil, err
 	}
 
 	logger.Info("Response Status Code: " + strconv.Itoa(resp.StatusCode))
-	return resp, nil
+	return result, nil
 }

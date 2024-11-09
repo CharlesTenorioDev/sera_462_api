@@ -42,6 +42,6 @@ type RespostaPergunta struct {
 	Correta      bool               `bson:"correta" json:"correta"`
 }
 
-type PerguntaGeminai struct {
+type PerguntIA struct {
 	Perguntas string `json:"perguntas"`
 }

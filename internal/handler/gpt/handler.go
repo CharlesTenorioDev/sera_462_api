@@ -1,4 +1,4 @@
-package gemini
+package gpt
 
 import (
 	"encoding/json"
@@ -7,38 +7,22 @@ import (
 
 	"github.com/sera_backend/internal/config/logger"
 	"github.com/sera_backend/pkg/model"
-	"github.com/sera_backend/pkg/service/gemini"
+	"github.com/sera_backend/pkg/service/gpt"
 )
 
-func createQuestion(service gemini.GminiClientInterface) http.HandlerFunc {
+func createQuestion(service gpt.GptClientInterface) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		perg := &model.PerguntIA{}
 
 		err := json.NewDecoder(r.Body).Decode(perg)
-
 		if err != nil {
 			logger.Error("erro ao converte para json", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(`{"MSG": "Error to parse User to JSON", "codigo": 500}`))
 			return
 		}
-		logger.Info(perg.Perguntas)
-		// if perg.Perguntas != " " {
-		// 	w.WriteHeader(http.StatusBadRequest)
-		// 	w.Write([]byte(`{"MSG": "Pergunta e obrigatória", "codigo": 400}`))
-		// 	return
-		// }
 
-		contents := []map[string]interface{}{
-			{
-				"parts": []map[string]string{
-					{"text": perg.Perguntas, "type": "text/plain"},
-				},
-			},
-		}
-
-		result, err := service.DoRequest("POST", contents)
+		result, err := service.DoRequest("POST", perg.Perguntas)
 		if err != nil {
 			logger.Error("erro ao criar usuario", err)
 			w.WriteHeader(http.StatusInternalServerError)

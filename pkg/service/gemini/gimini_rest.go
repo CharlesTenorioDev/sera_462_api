@@ -66,19 +66,19 @@ func cleanString(input string) string {
 	return cleaned
 }
 
-func (r *GeminiResponse) GetPartsContent() string {
-	if len(r.Candidates) == 0 || len(r.Candidates[0].Content.Parts) == 0 {
-		return ""
-	}
+// func (r *GeminiResponse) GetPartsContent() string {
+// 	if len(r.Candidates) == 0 || len(r.Candidates[0].Content.Parts) == 0 {
+// 		return ""
+// 	}
 
-	// Get the content from the first part
-	content := r.Candidates[0].Content.Parts[0]
+// 	// Get the content from the first part
+// 	content := r.Candidates[0].Content.Parts[0]
 
-	// Clean the content
-	cleaned := cleanString(content)
+// 	// Clean the content
+// 	cleaned := cleanString(content)
 
-	return cleaned
-}
+// 	return cleaned
+// }
 
 // Modify DoRequest method to include response processing
 func (c *ClientGemini) DoRequest(method string, contents []map[string]interface{}) (string, error) {
@@ -90,6 +90,7 @@ func (c *ClientGemini) DoRequest(method string, contents []map[string]interface{
 
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
+		logger.Error("error to convert Client to JSON para Gimini", err)
 		return "", err
 	}
 
@@ -103,6 +104,7 @@ func (c *ClientGemini) DoRequest(method string, contents []map[string]interface{
 
 	resp, err := c.cliente.Do(req)
 	if err != nil {
+		logger.Error("error to create request Gimini", err)
 		return "", err
 	}
 	defer resp.Body.Close()
@@ -111,6 +113,7 @@ func (c *ClientGemini) DoRequest(method string, contents []map[string]interface{
 	var response GeminiResponse
 	decoder := json.NewDecoder(resp.Body)
 	if err := decoder.Decode(&response); err != nil {
+		logger.Error("error to decode response Gimini", err)
 		return "", err
 	}
 
