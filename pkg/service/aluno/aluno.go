@@ -33,7 +33,7 @@ func NewAlunoervice(mongo_connection mongodb.MongoDBInterface) *AlunoDataService
 }
 
 func (cat *AlunoDataService) Create(ctx context.Context, Aluno model.Aluno) (*model.Aluno, error) {
-	collection := cat.mdb.GetCollection("cfStore")
+	collection := cat.mdb.GetCollection("cfSera")
 	cli := model.NewAluno(Aluno)
 	result, err := collection.InsertOne(ctx, cli)
 	if err != nil {
@@ -47,7 +47,7 @@ func (cat *AlunoDataService) Create(ctx context.Context, Aluno model.Aluno) (*mo
 }
 
 func (cat *AlunoDataService) Update(ctx context.Context, ID string, Aluno *model.Aluno) (bool, error) {
-	collection := cat.mdb.GetCollection("cfStore")
+	collection := cat.mdb.GetCollection("cfSera")
 
 	opts := options.Update().SetUpsert(true)
 
@@ -84,7 +84,7 @@ func (cat *AlunoDataService) Update(ctx context.Context, ID string, Aluno *model
 
 func (cat *AlunoDataService) GetByID(ctx context.Context, ID string) (*model.Aluno, error) {
 
-	collection := cat.mdb.GetCollection("cfStore")
+	collection := cat.mdb.GetCollection("cfSera")
 
 	Aluno := &model.Aluno{}
 
@@ -110,7 +110,7 @@ func (cat *AlunoDataService) GetByID(ctx context.Context, ID string) (*model.Alu
 }
 
 func (cat *AlunoDataService) GetAll(ctx context.Context, filters model.FilterAluno, limit, page int64) (*model.Paginate, error) {
-	collection := cat.mdb.GetCollection("cfStore")
+	collection := cat.mdb.GetCollection("cfSera")
 
 	query := bson.M{"data_type": "Aluno"}
 
@@ -157,7 +157,7 @@ func (cat *AlunoDataService) GetAll(ctx context.Context, filters model.FilterAlu
 
 func (cat *AlunoDataService) GetByDocumento(ctx context.Context, Doc string) bool {
 
-	collection := cat.mdb.GetCollection("cfStore")
+	collection := cat.mdb.GetCollection("cfSera")
 
 	// Utilizando o método CountDocuments para verificar a existência
 	filter := bson.D{

@@ -1,4 +1,4 @@
-package professor
+package turma
 
 import (
 	"context"
@@ -14,31 +14,31 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type ProfessorServiceInterface interface {
-	Create(ctx context.Context, Professor model.Professor) (*model.Professor, error)
-	Update(ctx context.Context, ID string, ProfessorToChange *model.Professor) (bool, error)
-	GetByID(ctx context.Context, ID string) (*model.Professor, error)
-	GetAll(ctx context.Context, filters model.FilterProfessor, limit, page int64) (*model.Paginate, error)
+type TurmaServiceInterface interface {
+	Create(ctx context.Context, Turma model.Turma) (*model.Turma, error)
+	Update(ctx context.Context, ID string, TurmaToChange *model.Turma) (bool, error)
+	GetByID(ctx context.Context, ID string) (*model.Turma, error)
+	GetAll(ctx context.Context, filters model.FilterTurma, limit, page int64) (*model.Paginate, error)
 	GetByDocumento(ctx context.Context, Documento string) bool
 }
 
-type ProfessorDataService struct {
+type TurmaDataService struct {
 	mdb mongodb.MongoDBInterface
 }
 
-func NewProfessorervice(mongo_connection mongodb.MongoDBInterface) *ProfessorDataService {
-	return &ProfessorDataService{
+func NewTurmaervice(mongo_connection mongodb.MongoDBInterface) *TurmaDataService {
+	return &TurmaDataService{
 		mdb: mongo_connection,
 	}
 }
 
-func (cat *ProfessorDataService) Create(ctx context.Context, Professor model.Professor) (*model.Professor, error) {
+func (cat *TurmaDataService) Create(ctx context.Context, Turma model.Turma) (*model.Turma, error) {
 	collection := cat.mdb.GetCollection("cfSera")
-	cli := model.NewProfessor(Professor)
+	cli := model.NewTurma(Turma)
 	result, err := collection.InsertOne(ctx, cli)
 	if err != nil {
-		logger.Error("erro salvar  Professor", err)
-		return &Professor, err
+		logger.Error("erro salvar  Turma", err)
+		return &Turma, err
 	}
 
 	cli.ID = result.InsertedID.(primitive.ObjectID)
@@ -46,7 +46,7 @@ func (cat *ProfessorDataService) Create(ctx context.Context, Professor model.Pro
 	return cli, nil
 }
 
-func (cat *ProfessorDataService) Update(ctx context.Context, ID string, Professor *model.Professor) (bool, error) {
+func (cat *TurmaDataService) Update(ctx context.Context, ID string, Turma *model.Turma) (bool, error) {
 	collection := cat.mdb.GetCollection("cfSera")
 
 	opts := options.Update().SetUpsert(true)
@@ -61,13 +61,13 @@ func (cat *ProfessorDataService) Update(ctx context.Context, ID string, Professo
 	filter := bson.D{
 
 		{Key: "_id", Value: objectID},
-		{Key: "data_type", Value: "Professor"},
+		{Key: "data_type", Value: "Turma"},
 	}
 
 	update := bson.D{{Key: "$set",
 		Value: bson.D{
-			{Key: "nome", Value: Professor.Nome},
-			{Key: "enabled", Value: Professor.Enabled},
+			{Key: "nome", Value: Turma.Nome},
+			{Key: "enabled", Value: Turma.Enabled},
 			{Key: "updated_at", Value: time.Now().Format(time.RFC3339)},
 		},
 	}}
@@ -82,11 +82,11 @@ func (cat *ProfessorDataService) Update(ctx context.Context, ID string, Professo
 	return true, nil
 }
 
-func (cat *ProfessorDataService) GetByID(ctx context.Context, ID string) (*model.Professor, error) {
+func (cat *TurmaDataService) GetByID(ctx context.Context, ID string) (*model.Turma, error) {
 
 	collection := cat.mdb.GetCollection("cfSera")
 
-	Professor := &model.Professor{}
+	Turma := &model.Turma{}
 
 	objectID, err := primitive.ObjectIDFromHex(ID)
 	if err != nil {
@@ -96,23 +96,23 @@ func (cat *ProfessorDataService) GetByID(ctx context.Context, ID string) (*model
 	}
 
 	filter := bson.D{
-		{Key: "data_type", Value: "Professor"},
+		{Key: "data_type", Value: "Turma"},
 		{Key: "_id", Value: objectID},
 	}
 
-	err = collection.FindOne(ctx, filter).Decode(Professor)
+	err = collection.FindOne(ctx, filter).Decode(Turma)
 	if err != nil {
-		logger.Error("erro ao consultar Professor", err)
+		logger.Error("erro ao consultar Turma", err)
 		return nil, err
 	}
 
-	return Professor, nil
+	return Turma, nil
 }
 
-func (cat *ProfessorDataService) GetAll(ctx context.Context, filters model.FilterProfessor, limit, page int64) (*model.Paginate, error) {
+func (cat *TurmaDataService) GetAll(ctx context.Context, filters model.FilterTurma, limit, page int64) (*model.Paginate, error) {
 	collection := cat.mdb.GetCollection("cfSera")
 
-	query := bson.M{"data_type": "Professor"}
+	query := bson.M{"data_type": "Turma"}
 
 	if filters.Nome != "" || filters.Enabled != "" {
 		if filters.Nome != "" {
@@ -130,7 +130,7 @@ func (cat *ProfessorDataService) GetAll(ctx context.Context, filters model.Filte
 	count, err := collection.CountDocuments(ctx, query, &options.CountOptions{})
 
 	if err != nil {
-		logger.Error("erro ao consultar todas as Professors", err)
+		logger.Error("erro ao consultar todas as Turmas", err)
 		return nil, err
 	}
 
@@ -141,11 +141,11 @@ func (cat *ProfessorDataService) GetAll(ctx context.Context, filters model.Filte
 		return nil, err
 	}
 
-	result := make([]*model.Professor, 0)
+	result := make([]*model.Turma, 0)
 	for curr.Next(ctx) {
-		cat := &model.Professor{}
+		cat := &model.Turma{}
 		if err := curr.Decode(cat); err != nil {
-			logger.Error("erro ao consulta todas as Professors", err)
+			logger.Error("erro ao consulta todas as Turmas", err)
 		}
 		result = append(result, cat)
 	}
@@ -155,18 +155,18 @@ func (cat *ProfessorDataService) GetAll(ctx context.Context, filters model.Filte
 	return pagination, nil
 }
 
-func (cat *ProfessorDataService) GetByDocumento(ctx context.Context, Doc string) bool {
+func (cat *TurmaDataService) GetByDocumento(ctx context.Context, Doc string) bool {
 
 	collection := cat.mdb.GetCollection("cfSera")
 
 	// Utilizando o método CountDocuments para verificar a existência
 	filter := bson.D{
 		{Key: "cpf_cnpj", Value: Doc},
-		{Key: "data_type", Value: "Professor"},
+		{Key: "data_type", Value: "Turma"},
 	}
 	count, err := collection.CountDocuments(ctx, filter)
 	if err != nil {
-		logger.Error("erro ao consultar Professor pelo doc", err)
+		logger.Error("erro ao consultar Turma pelo doc", err)
 		return false
 	}
 

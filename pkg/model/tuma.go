@@ -9,16 +9,17 @@ import (
 )
 
 type Turma struct {
-	ID             primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
-	ID_Instituicao primitive.ObjectID `bson:"instituicao_id" json:"instituicao_id"`
-	DataType       string             `bson:"data_type" json:"-"`
-	Nome           string             `bson:"nome" json:"nome"`
-	Horario        string             `bson:"horario" json:"horario"`
-	Materias       []Materia          `bson:"materias" json:"materias"`
-	Turmas         []Turma            `bson:"Turmas" json:"Turmas"`
-	Enabled        bool               `bson:"enabled" json:"enabled"`
-	CreatedAt      string             `bson:"created_at" json:"created_at,omitempty"`
-	UpdatedAt      string             `bson:"updated_at" json:"updated_at,omitempty"`
+	ID             primitive.ObjectID   `bson:"_id,omitempty" json:"_id,omitempty"`
+	ID_Instituicao primitive.ObjectID   `bson:"instituicao_id" json:"instituicao_id"`
+	DataType       string               `bson:"data_type" json:"-"`
+	Nome           string               `bson:"nome" json:"nome"`
+	Horario        string               `bson:"horario" json:"horario"`
+	Materias       []primitive.ObjectID `bson:"materia_ids" json:"materia_ids"`
+	Alunos         []primitive.ObjectID `bson:"aluno_ids" json:"aluno_ids"`
+	Professores    []primitive.ObjectID `bson:"professor_ids" json:"professor_ids"`
+	Enabled        bool                 `bson:"enabled" json:"enabled"`
+	CreatedAt      string               `bson:"created_at" json:"created_at,omitempty"`
+	UpdatedAt      string               `bson:"updated_at" json:"updated_at,omitempty"`
 }
 
 func (t Turma) TurmaConvet() string {
@@ -49,7 +50,7 @@ func NewTurma(Turma_request Turma) *Turma {
 		Nome:           Turma_request.Nome,
 		Horario:        Turma_request.Horario,
 		Materias:       Turma_request.Materias,
-		Turmas:         Turma_request.Turmas,
+		Alunos:         Turma_request.Alunos[:],
 		Enabled:        true,
 		CreatedAt:      time.Now().String(),
 	}

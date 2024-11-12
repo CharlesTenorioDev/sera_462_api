@@ -33,7 +33,7 @@ func NewMateriaService(mongo_connection mongodb.MongoDBInterface) *MateriaDataSe
 }
 
 func (mpg *MateriaDataService) Create(ctx context.Context, Materia model.Materia) (*model.Materia, error) {
-	collection := mpg.mdb.GetCollection("cfStore")
+	collection := mpg.mdb.GetCollection("cfSera")
 	meio := model.NewMateria(Materia)
 
 	result, err := collection.InsertOne(ctx, meio)
@@ -48,7 +48,7 @@ func (mpg *MateriaDataService) Create(ctx context.Context, Materia model.Materia
 }
 
 func (mpg *MateriaDataService) Update(ctx context.Context, ID string, Materia *model.Materia) (bool, error) {
-	collection := mpg.mdb.GetCollection("cfStore")
+	collection := mpg.mdb.GetCollection("cfSera")
 
 	opts := options.Update().SetUpsert(true)
 
@@ -84,7 +84,7 @@ func (mpg *MateriaDataService) Update(ctx context.Context, ID string, Materia *m
 
 func (mpg *MateriaDataService) GetByID(ctx context.Context, ID string) (*model.Materia, error) {
 
-	collection := mpg.mdb.GetCollection("cfStore")
+	collection := mpg.mdb.GetCollection("cfSera")
 
 	Materia := &model.Materia{}
 
@@ -109,7 +109,7 @@ func (mpg *MateriaDataService) GetByID(ctx context.Context, ID string) (*model.M
 }
 
 func (mpg *MateriaDataService) GetAll(ctx context.Context, filters model.FilterMateria, limit, page int64) (*model.Paginate, error) {
-	collection := mpg.mdb.GetCollection("cfStore")
+	collection := mpg.mdb.GetCollection("cfSera")
 
 	query := bson.M{}
 
@@ -155,7 +155,7 @@ func (mpg *MateriaDataService) GetAll(ctx context.Context, filters model.FilterM
 }
 
 func (mpg *MateriaDataService) CheckExists(ctx context.Context, meio string) bool {
-	collection := mpg.mdb.GetCollection("cfStore")
+	collection := mpg.mdb.GetCollection("cfSera")
 
 	query := bson.M{
 		"data_type": "meio_pg",

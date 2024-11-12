@@ -15,6 +15,7 @@ type Aluno struct {
 	Matricula      string             `bson:"matricula" json:"matricula"`
 	DataType       string             `bson:"data_type" json:"-"`
 	IDUsuario      primitive.ObjectID `bson:"user_id " json:"id_usr"`
+	IDTurma        primitive.ObjectID `bson:"turma_id" json:"turma_id"`
 	Nome           string             `bson:"nome" json:"nome"`
 	DataNasc       time.Time          `bson:"data_nasc" json:"data_nasc"`
 	Sexo           string             `bson:"sexo" json:"sexo"`

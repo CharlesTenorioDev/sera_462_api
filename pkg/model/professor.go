@@ -20,6 +20,7 @@ type Professor struct {
 	Tipo           string               `bson:"tipo" json:"tipo"`
 	Documento      string               `bson:"cpf_cnpj" json:"cpf_cnpj"`
 	Materias       []primitive.ObjectID `bson:"materias" json:"materias"`
+	Turmas         []primitive.ObjectID `bson:"turma_ids" json:"turma_ids"`
 	Enabled        bool                 `bson:"enabled" json:"enabled"`
 	CreatedAt      string               `bson:"created_at" json:"created_at,omitempty"`
 	UpdatedAt      string               `bson:"updated_at" json:"updated_at,omitempty"`

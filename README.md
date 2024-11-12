@@ -22,3 +22,8 @@ Para configurar e rodar o modelo de inteligÃªncia artificial **Llama** na sua mÃ
    curl -fsSL https://ollama.com/install.sh | sh
    ollama pull llama3.2:1b
    ollama run llama3.2
+   roda localsta
+    docker run -d -v /var/run/docker.sock:/var/run/docker.sock localstack/localstack
+    serviso de SQS
+    docker run --rm -it -e SERVICES=sqs -p 4566:4566 localstack/localstack
+docker start localstack

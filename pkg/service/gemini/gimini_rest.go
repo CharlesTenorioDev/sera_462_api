@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/sera_backend/internal/config"
@@ -55,32 +54,6 @@ func NewClient(cfg *config.Config) *ClientGemini {
 	}
 }
 
-func cleanString(input string) string {
-	cleaned := strings.ReplaceAll(input, "\\n", "\n")
-	cleaned = strings.ReplaceAll(cleaned, "\\t", "\t")
-	cleaned = strings.ReplaceAll(cleaned, "\\\"", "\"")
-	cleaned = strings.ReplaceAll(cleaned, "**\n", "")
-	cleaned = strings.ReplaceAll(cleaned, "\n", "")
-	cleaned = strings.ReplaceAll(cleaned, "**", "")
-
-	return cleaned
-}
-
-// func (r *GeminiResponse) GetPartsContent() string {
-// 	if len(r.Candidates) == 0 || len(r.Candidates[0].Content.Parts) == 0 {
-// 		return ""
-// 	}
-
-// 	// Get the content from the first part
-// 	content := r.Candidates[0].Content.Parts[0]
-
-// 	// Clean the content
-// 	cleaned := cleanString(content)
-
-// 	return cleaned
-// }
-
-// Modify DoRequest method to include response processing
 func (c *ClientGemini) DoRequest(method string, contents []map[string]interface{}) (string, error) {
 	url := c.baseUrl + c.apiKey
 
@@ -124,7 +97,6 @@ func (c *ClientGemini) DoRequest(method string, contents []map[string]interface{
 	}
 
 	// Limpeza adicional se necessário
-	partsContent = cleanString(partsContent)
 
 	logger.Info("Parts Content: " + partsContent)
 	return partsContent, nil

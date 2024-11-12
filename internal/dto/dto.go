@@ -33,3 +33,6 @@ type SubscriptionInputDTO struct {
 	MaxPayments       int     `json:"maxPayments"`
 	ExternalReference string  `json:"externalReference"`
 }
+type PerguntIADTO struct {
+	Perguntas string `json:"perguntas"`
+}

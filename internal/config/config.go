@@ -27,8 +27,9 @@ type Config struct {
 	LlamaConfig   *LlamaConfig  `json:"llama_config"`
 	GptConfig     *GptConfig    `json:"gpt_config"`
 	GiminiConfig  *GiminiConfig `json:"gimini_config"`
-}
 
+	*AWS_CONFIG
+}
 type MongoDBConfig struct {
 	MDB_URI                string `json:"mdb_uri"`
 	MDB_NAME               string `json:"mdb_name"`
@@ -56,6 +57,15 @@ type GptConfig struct {
 type GiminiConfig struct {
 	API_KEY string `json:"api_key"`
 	URL     string `json:"url"`
+}
+
+type AWS_CONFIG struct {
+	ACCESS_KEY_ID     string `json:"access_key_id"`
+	SECRET_ACCESS_KEY string `json:"secret_access_key"`
+	REGION            string `json:"region"`
+	BUCKET_NAME       string `json:"bucket_name"`
+	SQS_QUEUE_NAME    string `json:"sqs_queue_name"`
+	SQS_QUEUE_URL     string `json:"sqs_queue_url"`
 }
 
 func NewConfig() *Config {
@@ -133,6 +143,29 @@ func NewConfig() *Config {
 		conf.GiminiConfig.URL = giminiUrl
 	}
 
+	if SRV_ACCESS_KEY_ID := os.Getenv("AWS_ACCESS_KEY_ID"); SRV_ACCESS_KEY_ID != "" {
+		conf.AWS_CONFIG.ACCESS_KEY_ID = SRV_ACCESS_KEY_ID
+	}
+
+	if SRV_SECRET_ACCESS_KEY := os.Getenv("AWS_SECRET_ACCESS_KEY"); SRV_SECRET_ACCESS_KEY != "" {
+		conf.AWS_CONFIG.SECRET_ACCESS_KEY = SRV_SECRET_ACCESS_KEY
+	}
+
+	if SRV_REGION := os.Getenv("AWS_REGION"); SRV_REGION != "" {
+		conf.AWS_CONFIG.REGION = SRV_REGION
+	}
+
+	if SRV_BUCKET_NAME := os.Getenv("AWS_BUCKET_NAME"); SRV_BUCKET_NAME != "" {
+		conf.AWS_CONFIG.BUCKET_NAME = SRV_BUCKET_NAME
+	}
+
+	if SRV_QUEUE_NAME := os.Getenv("AWS_QUEUE_NAME"); SRV_QUEUE_NAME != "" {
+		conf.AWS_CONFIG.SQS_QUEUE_NAME = SRV_QUEUE_NAME
+	}
+
+	if SRV_QUEUE_URL := os.Getenv("AWS_QUEUE_URL"); SRV_QUEUE_URL != "" {
+		conf.AWS_CONFIG.SQS_QUEUE_URL = SRV_QUEUE_URL
+	}
 	return conf
 }
 
@@ -156,6 +189,11 @@ func defaultConf() *Config {
 		},
 		GiminiConfig: &GiminiConfig{
 			URL: "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=",
+		},
+
+		AWS_CONFIG: &AWS_CONFIG{
+			BUCKET_NAME:    "",
+			SQS_QUEUE_NAME: "",
 		},
 	}
 

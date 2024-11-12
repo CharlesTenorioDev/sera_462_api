@@ -6,14 +6,14 @@ import (
 	"net/http"
 
 	"github.com/sera_backend/internal/config/logger"
-	"github.com/sera_backend/pkg/model"
+	"github.com/sera_backend/internal/dto"
 	"github.com/sera_backend/pkg/service/gemini"
 )
 
 func createQuestion(service gemini.GminiClientInterface) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		perg := &model.PerguntIA{}
+		perg := &dto.PerguntIADTO{}
 
 		err := json.NewDecoder(r.Body).Decode(perg)
 

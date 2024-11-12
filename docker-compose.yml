@@ -13,6 +13,20 @@ services:
     networks:
       - user-bridge
 
+  localstack:
+    image: localstack/localstack
+    container_name: localstack
+    environment:
+      - SERVICES=sqs
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+    networks:
+      - user-bridge
+    ports:
+      - "4566:4566"  # Porta principal para interações com LocalStack
+    volumes:
+      - ./tmp_data/localstack_data:/tmp/localstack
+
 networks:
   user-bridge:
     external: true
