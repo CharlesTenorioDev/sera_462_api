@@ -27,8 +27,8 @@ type Config struct {
 	LlamaConfig   *LlamaConfig  `json:"llama_config"`
 	GptConfig     *GptConfig    `json:"gpt_config"`
 	GiminiConfig  *GiminiConfig `json:"gimini_config"`
-
 	*AWS_CONFIG
+	*RMQConfig
 }
 type MongoDBConfig struct {
 	MDB_URI                string `json:"mdb_uri"`
@@ -64,8 +64,25 @@ type AWS_CONFIG struct {
 	SECRET_ACCESS_KEY string `json:"secret_access_key"`
 	REGION            string `json:"region"`
 	BUCKET_NAME       string `json:"bucket_name"`
-	SQS_QUEUE_NAME    string `json:"sqs_queue_name"`
-	SQS_QUEUE_URL     string `json:"sqs_queue_url"`
+}
+
+type RMQConfig struct {
+	RMQ_URI                  string `json:"rmq_uri"`
+	RMQ_MAXX_RECONNECT_TIMES int    `json:"rmq_maxx_reconnect_times"`
+}
+
+type ConsumerConfig struct {
+	ExchangeName  string `json:"exchange_name"`
+	ExchangeType  string `json:"exchange_type"`
+	RoutingKey    string `json:"routing_key"`
+	QueueName     string `json:"queue_name"`
+	ConsumerName  string `json:"consumer_name"`
+	ConsumerCount int    `json:"consumer_count"`
+	PrefetchCount int    `json:"prefetch_count"`
+	Reconnect     struct {
+		MaxAttempt int `json:"max_attempt"`
+		Interval   int `json:"interval"`
+	}
 }
 
 func NewConfig() *Config {
@@ -159,13 +176,12 @@ func NewConfig() *Config {
 		conf.AWS_CONFIG.BUCKET_NAME = SRV_BUCKET_NAME
 	}
 
-	if SRV_QUEUE_NAME := os.Getenv("AWS_QUEUE_NAME"); SRV_QUEUE_NAME != "" {
-		conf.AWS_CONFIG.SQS_QUEUE_NAME = SRV_QUEUE_NAME
+	SRV_RMQ_URI := os.Getenv("SRV_RMQ_URI")
+	if SRV_RMQ_URI != "" {
+		conf.RMQConfig.RMQ_URI = SRV_RMQ_URI
+
 	}
 
-	if SRV_QUEUE_URL := os.Getenv("AWS_QUEUE_URL"); SRV_QUEUE_URL != "" {
-		conf.AWS_CONFIG.SQS_QUEUE_URL = SRV_QUEUE_URL
-	}
 	return conf
 }
 
@@ -192,8 +208,12 @@ func defaultConf() *Config {
 		},
 
 		AWS_CONFIG: &AWS_CONFIG{
-			BUCKET_NAME:    "",
-			SQS_QUEUE_NAME: "",
+			BUCKET_NAME: "",
+		},
+
+		RMQConfig: &RMQConfig{
+
+			RMQ_MAXX_RECONNECT_TIMES: 3,
 		},
 	}
 

@@ -1,5 +1,7 @@
 package dto
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 type GetJwtInput struct {
 	Email string `json:"email"`
 	Senha string `json:"senha"`
@@ -35,4 +37,9 @@ type SubscriptionInputDTO struct {
 }
 type PerguntIADTO struct {
 	Perguntas string `json:"perguntas"`
+}
+
+type QuestionarioParaFilaDTO struct {
+	ID     primitive.ObjectID `json:"id"`
+	Titulo string             `json:"titulo"`
 }

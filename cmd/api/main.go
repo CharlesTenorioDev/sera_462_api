@@ -6,11 +6,13 @@ import (
 
 	"github.com/sera_backend/internal/config"
 	"github.com/sera_backend/internal/config/logger"
+	"github.com/sera_backend/pkg/adapter/rabbitmq"
 
 	hand_asaas "github.com/sera_backend/internal/handler/asaas"
 	hand_gemini "github.com/sera_backend/internal/handler/gemini"
 	hand_gpt "github.com/sera_backend/internal/handler/gpt"
 	hand_instituicao "github.com/sera_backend/internal/handler/instituicao"
+	hand_questionarioia "github.com/sera_backend/internal/handler/questionarioia"
 	hand_usr "github.com/sera_backend/internal/handler/user"
 	handHealthcheck "github.com/sera_backend/internal/healthcheck"
 
@@ -23,6 +25,7 @@ import (
 	service_gpt "github.com/sera_backend/pkg/service/gpt"
 	serviceHealthcheck "github.com/sera_backend/pkg/service/healthcheck"
 	service_instituicao "github.com/sera_backend/pkg/service/instituicao"
+	service_questionarioia "github.com/sera_backend/pkg/service/questionarioia"
 	service_usr "github.com/sera_backend/pkg/service/user"
 
 	"github.com/go-chi/chi/v5"
@@ -42,6 +45,33 @@ func main() {
 
 	mogDbConn := mongodb.New(conf)
 
+	fila := []rabbitmq.Fila{
+		{
+			Name:       "QUEUE_ENVIAR_IA",
+			Durable:    true,
+			AutoDelete: false,
+			Exclusive:  false,
+		},
+	}
+
+	rbtMQConn := rabbitmq.NewRabbitMQ(fila, conf)
+
+	if err := rbtMQConn.Connect(); err != nil {
+		logger.Error("Falha ao conectar no RabbitMQ", err)
+
+	}
+
+	if err := rbtMQConn.DeclareQueues(); err != nil {
+		logger.Error("Falha ao declarar filas no RabbitMQ", err)
+
+	}
+
+	isAlive, err := rbtMQConn.IsAlive()
+	if !isAlive || err != nil {
+		logger.Error("RabbitMQ não está disponível", err)
+
+	}
+
 	usr_service := service_usr.NewUsuarioservice(mogDbConn)
 
 	inst_service := service_instituicao.NewInstituicaoervice(mogDbConn)
@@ -51,6 +81,8 @@ func main() {
 	gemini_service := service_gemini.NewClient(conf)
 
 	gpt_service := service_gpt.NewClient(conf)
+
+	questionarioia_service := service_questionarioia.NewQuestionarioervice(mogDbConn, rbtMQConn)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -73,6 +105,7 @@ func main() {
 	handHealthcheck.RegisterHealthcheckAPIHandlers(r, handServiceHealthcheck)
 	hand_gemini.RegisterGeminiAPIHandlers(r, gemini_service)
 	hand_gpt.RegisterGPTAPIHandlers(r, gpt_service)
+	hand_questionarioia.RegisterQuestionarioHandlers(r, questionarioia_service)
 
 	// Inicie o worker em uma goroutine
 

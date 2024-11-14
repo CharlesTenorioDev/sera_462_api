@@ -13,19 +13,21 @@ services:
     networks:
       - user-bridge
 
-  localstack:
-    image: localstack/localstack
-    container_name: localstack
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.13-management-alpine
+    # restart: always
     environment:
-      - SERVICES=sqs
-      - DEBUG=1
-      - DATA_DIR=/tmp/localstack/data
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=supersenha
     networks:
       - user-bridge
     ports:
-      - "4566:4566"  # Porta principal para interações com LocalStack
+      - "5672:5672"
+      - "15672:15672"
     volumes:
-      - ./tmp_data/localstack_data:/tmp/localstack
+      - ./tmp_data/rabbitmq_data:/var/lib/rabbitmq
+
 
 networks:
   user-bridge:
