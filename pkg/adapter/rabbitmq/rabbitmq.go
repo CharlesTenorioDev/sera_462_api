@@ -13,7 +13,7 @@ import (
 )
 
 type RabbitInterface interface {
-	SenderRb(ctx context.Context, queue_name string, msg *Message) error
+	SenderRb(ctx context.Context, queue_name string, routingKey string, msg *Message) error
 	Consumer(queue_name string, callback func(msg *amqp.Delivery))
 	Connect() error
 	Start(queue_name string, callback func(msg *amqp.Delivery))

@@ -2,22 +2,55 @@ package rabbitmq
 
 import (
 	"context"
+	"fmt"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/sera_backend/internal/config/logger"
 )
 
-func (rbm *rbm_pool) SenderRb(ctx context.Context, exchange_name string, msg *Message) error {
+// func (rbm *rbm_pool) SenderRb(ctx context.Context, exchange_name string, msg *Message) error {
 
+// 	if rbm.channel == nil {
+// 		logger.Info("RMB.CHANNEL E NULL")
+// 	}
+// 	if ctx == nil {
+// 		logger.Info("ctx E NULL")
+// 	}
+// 	err := rbm.channel.PublishWithContext(ctx,
+// 		"amq.direct", // exchange amq.direct
+// 		"",           // routing key
+// 		false,        // mandatory
+// 		false,        // immediate
+// 		amqp.Publishing{
+// 			Body:        msg.Data,
+// 			ContentType: msg.ContentType,
+// 		})
+
+// 	if err != nil {
+// 		logger.Error("DEU MERDA AQUI NA PUPLICACAO", err)
+// 	}
+// 	logger.Info("MENSAGEM ENVIADA")
+// 	return nil
+// }
+
+func (rbm *rbm_pool) SenderRb(ctx context.Context, exchangeName string, routingKey string, msg *Message) error {
+
+	// Verificar se o canal está inicializado
 	if rbm.channel == nil {
 		logger.Info("RMB.CHANNEL E NULL")
+		return fmt.Errorf("canal RabbitMQ não está inicializado")
 	}
+
+	// Verificar se o contexto está inicializado
 	if ctx == nil {
 		logger.Info("ctx E NULL")
+		return fmt.Errorf("contexto não está inicializado")
 	}
+
+	// Publicar a mensagem
 	err := rbm.channel.PublishWithContext(ctx,
-		"amq.direct", // exchange amq.direct
-		"",           // routing key
+		exchangeName, // Nome da exchange
+		routingKey,   // Chave de roteamento (nome da fila)
 		false,        // mandatory
 		false,        // immediate
 		amqp.Publishing{
@@ -26,8 +59,10 @@ func (rbm *rbm_pool) SenderRb(ctx context.Context, exchange_name string, msg *Me
 		})
 
 	if err != nil {
-		logger.Error("DEU MERDA AQUI NA PUPLICACAO", err)
+		logger.Error("Erro ao publicar mensagem", err)
+		return err
 	}
-	logger.Info("MENSAGEM ENVIADA")
+
+	logger.Info("Mensagem enviada com sucesso!")
 	return nil
 }

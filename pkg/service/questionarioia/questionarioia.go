@@ -66,7 +66,7 @@ func (cat *QuestionarioDataService) Create(ctx context.Context, Questionario mod
 		logger.Error("deu ruim na conexao como RabbitMQ", err)
 	}
 
-	err = cat.rmb.SenderRb(ctx, "amq.direct", msg)
+	err = cat.rmb.SenderRb(ctx, "amq.direct", "QUEUE_ENVIAR_IA", msg)
 	if err != nil {
 		logger.Error("Erro ao enviar Questionario para fila:", err)
 		return &Questionario, err
