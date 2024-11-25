@@ -2,6 +2,7 @@ package questionarioia
 
 import (
 	"encoding/json"
+	"strings"
 
 	"net/http"
 
@@ -14,17 +15,28 @@ import (
 
 func createQuestionario(service questionarioia.QuestionarioServiceInterface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		questionario := &model.Questionario{}
+		quest := &model.Questionario{}
 
-		err := json.NewDecoder(r.Body).Decode(&questionario)
+		err := json.NewDecoder(r.Body).Decode(&quest)
 
 		if err != nil {
 			logger.Error("error decoding request body", err)
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
+		titulo := strings.ToUpper(quest.Titulo)
 
-		_, err = service.Create(r.Context(), *questionario)
+		// GetByQuetionario(ctx context.Context, IDTurma, IDMateria, IDProfessor, Titulo string)
+
+		peruntaExist := service.GetByQuetionario(r.Context(), quest.IDTurma.Hex(), quest.IDMateria.Hex(), quest.IDProfessor.Hex(), titulo)
+
+		if peruntaExist {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(`{"MSG": "Caro Professor, essa pergunta ja foi cadastrada para essa turma", "codigo": 400}`))
+			return
+		}
+
+		_, err = service.Create(r.Context(), *quest)
 		if err != nil {
 			logger.Error("erro ao acessar a camada de service do mpg", err)
 			http.Error(w, "Error ou salvar Instituicao"+err.Error(), http.StatusInternalServerError)

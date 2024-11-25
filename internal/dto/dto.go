@@ -40,6 +40,28 @@ type PerguntIADTO struct {
 }
 
 type QuestionarioParaFilaDTO struct {
-	ID     primitive.ObjectID `json:"id"`
-	Titulo string             `json:"titulo"`
+	ID       primitive.ObjectID `json:"id"`
+	Titulo   string             `json:"titulo"`
+	Pergunta string             `json:"pergunta"`
+}
+
+type GeneratePayload struct {
+	Model  string `json:"model"`
+	Prompt string `json:"prompt"`
+	Stream bool   `json:"stream"`
+}
+
+type LlamaResponse struct {
+	CreatedAt string         `json:"created_at"`
+	Response  map[int]string `json:"response"`
+}
+
+type GeneratePayloadGroq struct {
+	Model    string        `json:"model"`
+	Messages []MessageGroq `json:"messages"`
+}
+
+type MessageGroq struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
 }

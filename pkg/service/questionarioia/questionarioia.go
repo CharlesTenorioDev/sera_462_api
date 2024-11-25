@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/sera_backend/internal/config/logger"
@@ -22,7 +23,7 @@ type QuestionarioServiceInterface interface {
 	Update(ctx context.Context, ID string, QuestionarioToChange *model.Questionario) (bool, error)
 	GetByID(ctx context.Context, ID string) (*model.Questionario, error)
 	GetAll(ctx context.Context, filters model.FilterQuestionario, limit, page int64) (*model.Paginate, error)
-	GetByDocumento(ctx context.Context, Documento string) bool
+	GetByQuetionario(ctx context.Context, IDTurma, IDMateria, IDProfessor, Titulo string) bool
 }
 
 type QuestionarioDataService struct {
@@ -40,8 +41,6 @@ func NewQuestionarioervice(mongo_connection mongodb.MongoDBInterface, rabbitmq_c
 func (cat *QuestionarioDataService) Create(ctx context.Context, Questionario model.Questionario) (*model.Questionario, error) {
 	collection := cat.mdb.GetCollection("cfSera")
 	questFila := dto.QuestionarioParaFilaDTO{}
-	questFila.ID = Questionario.ID
-	questFila.Titulo = Questionario.Titulo
 
 	cli := model.NewQuestionario(Questionario)
 	result, err := collection.InsertOne(ctx, cli)
@@ -49,6 +48,9 @@ func (cat *QuestionarioDataService) Create(ctx context.Context, Questionario mod
 		logger.Error("erro salvar  Questionario", err)
 		return &Questionario, err
 	}
+	questFila.ID = cli.ID
+	questFila.Titulo = cli.Titulo
+	questFila.Pergunta = cli.PerguntarParaIA
 
 	jsonData, err := json.Marshal(questFila)
 	if err != nil {
@@ -186,21 +188,47 @@ func (cat *QuestionarioDataService) GetAll(ctx context.Context, filters model.Fi
 	return pagination, nil
 }
 
-func (cat *QuestionarioDataService) GetByDocumento(ctx context.Context, Doc string) bool {
-
-	collection := cat.mdb.GetCollection("cfSera")
-
-	// Utilizando o método CountDocuments para verificar a existência
-	filter := bson.D{
-		{Key: "cpf_cnpj", Value: Doc},
-		{Key: "data_type", Value: "Questionario"},
-	}
-	count, err := collection.CountDocuments(ctx, filter)
+func (cat *QuestionarioDataService) GetByQuetionario(ctx context.Context, IDTurma, IDMateria, IDProfessor, Titulo string) bool {
+	// Converter os IDs para ObjectID
+	turmaObjectID, err := primitive.ObjectIDFromHex(IDTurma)
 	if err != nil {
-		logger.Error("erro ao consultar Questionario pelo doc", err)
+		logger.Error("Erro ao converter IDTurma para ObjectID", err)
 		return false
 	}
 
-	// Se count for maior que zero, o fornecedor existe
+	materiaObjectID, err := primitive.ObjectIDFromHex(IDMateria)
+	if err != nil {
+		logger.Error("Erro ao converter IDMateria para ObjectID", err)
+		return false
+	}
+
+	professorObjectID, err := primitive.ObjectIDFromHex(IDProfessor)
+	if err != nil {
+		logger.Error("Erro ao converter IDProfessor para ObjectID", err)
+		return false
+	}
+
+	// Converter o título para maiúsculas
+	Titulo = strings.ToUpper(Titulo)
+
+	collection := cat.mdb.GetCollection("cfSera")
+
+	// Criar o filtro
+	filter := bson.D{
+		{Key: "data_type", Value: "Questionario"},
+		{Key: "turma_id", Value: turmaObjectID},
+		{Key: "materia_id", Value: materiaObjectID},
+		{Key: "professor_id", Value: professorObjectID},
+		{Key: "titulo", Value: Titulo},
+	}
+
+	// Verificar se o documento existe
+	count, err := collection.CountDocuments(ctx, filter)
+	if err != nil {
+		logger.Error("Erro ao consultar Questionario", err)
+		return false
+	}
+
+	// Se count for maior que zero, o questionário existe
 	return count > 0
 }
