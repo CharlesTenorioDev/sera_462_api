@@ -228,7 +228,6 @@ func (cat *QuestionarioDataService) GetByQuetionario(ctx context.Context, IDTurm
 		logger.Error("Erro ao consultar Questionario", err)
 		return false
 	}
-
-	// Se count for maior que zero, o questionário existe
+	// git ok
 	return count > 0
 }
